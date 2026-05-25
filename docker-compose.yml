@@ -76,11 +76,6 @@ services:
       - miniuber-network
     environment:
       - JAVA_OPTS=-Xmx256m -Xms128m
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 5
 
   api-gateway:
     build: ./api-gateway
@@ -98,15 +93,15 @@ services:
     networks:
       - miniuber-network
 
-  auth-service:
-    build: ./auth-service
-    container_name: miniuber-auth
+  core-service:
+    build: ./core-service
+    container_name: miniuber-core
     ports:
       - "8081:8081"
     volumes:
       - ./logs:/logs
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auth_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/core_db
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - JAVA_OPTS=-Xmx256m -Xms128m
@@ -120,79 +115,15 @@ services:
     networks:
       - miniuber-network
 
-  user-service:
-    build: ./user-service
-    container_name: miniuber-user
+  trip-service:
+    build: ./trip-service
+    container_name: miniuber-trip
     ports:
       - "8082:8082"
     volumes:
       - ./logs:/logs
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/user_db
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - JAVA_OPTS=-Xmx256m -Xms128m
-    depends_on:
-      postgres:
-        condition: service_healthy
-      eureka-server:
-        condition: service_started
-    networks:
-      - miniuber-network
-
-  driver-service:
-    build: ./driver-service
-    container_name: miniuber-driver
-    ports:
-      - "8084:8084"
-    volumes:
-      - ./logs:/logs
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/driver_db
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - JAVA_OPTS=-Xmx256m -Xms128m
-    depends_on:
-      postgres:
-        condition: service_healthy
-      eureka-server:
-        condition: service_started
-    networks:
-      - miniuber-network
-
-  ride-service:
-    build: ./ride-service
-    container_name: miniuber-ride
-    ports:
-      - "8083:8083"
-    volumes:
-      - ./logs:/logs
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/ride_db
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
-      - JAVA_OPTS=-Xmx256m -Xms128m
-    depends_on:
-      postgres:
-        condition: service_healthy
-      eureka-server:
-        condition: service_started
-      kafka:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - miniuber-network
-
-  location-service:
-    build: ./location-service
-    container_name: miniuber-location
-    ports:
-      - "8085:8085"
-    volumes:
-      - ./logs:/logs
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/location_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/trip_db
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - SPRING_REDIS_HOST=redis
@@ -214,7 +145,7 @@ services:
     build: ./payment-service
     container_name: miniuber-payment
     ports:
-      - "8086:8086"
+      - "8083:8083"
     volumes:
       - ./logs:/logs
     environment:
