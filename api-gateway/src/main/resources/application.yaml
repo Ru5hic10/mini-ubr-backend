@@ -1,0 +1,99 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=0
+
+        # Route logging endpoints to auth-service
+        - id: logs
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/logs/**
+          filters:
+            - StripPrefix=0
+
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - StripPrefix=0
+
+        - id: driver-service
+          uri: lb://driver-service
+          predicates:
+            - Path=/api/drivers/**
+          filters:
+            - StripPrefix=0
+
+        - id: ride-service
+          uri: lb://ride-service
+          predicates:
+            - Path=/api/rides/**
+          filters:
+            - StripPrefix=0
+
+        - id: location-service
+          uri: lb://location-service
+          predicates:
+            - Path=/api/locations/**
+          filters:
+            - StripPrefix=0
+
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+          filters:
+            - StripPrefix=0
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns:
+              - "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+              - HEAD
+            allowedHeaders:
+              - "*"
+            exposedHeaders:
+              - "*"
+            allowCredentials: false
+            maxAge: 3600
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
